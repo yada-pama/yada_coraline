@@ -1,21 +1,19 @@
 #1.
-SELECT mg.gen_id, d.dir_fname, d.dir_lname
+SELECT g.gen_title, d.dir_id, d.dir_fname, d.dir_lname
 FROM director d
-INNER JOIN movie_direction md ON d.dir_id =  md.dir_id
-INNER JOIN movie m ON md.mov_id = m.mov_id
-INNER JOIN movie_genres mg ON m.mov_id = mg.mov_id
-INNER JOIN rating r ON m.mov_id = r.mov_id
-WHERE rev_stars = (SELECT MAX(rev_stars) FROM rating)
-GROUP BY mg.gen_id;
+NATURAL JOIN movie_direction md
+NATURAL JOIN rating r
+NATURAL JOIN genres g
+WHERE r.rev_stars = (SELECT MAX(rev_stars) FROM rating);
 
 #2.	
-SELECT mc.act_id, a.act_fname, a.act_lname, SUM(m.mov_time)
-FROM movie_cast mc
-INNER JOIN actor a ON mc.act_id = a.act_id
-INNER JOIN movie m ON m.mov_id = mc.mov_id
-INNER JOIN rating r ON m.mov_id = r.rev_stars
+SELECT a.act_id, a.act_fname, a.act_lname, SUM(m.mov_time)
+FROM movie m
+NATURAL JOIN movie_cast mc 
+NATURAL JOIN actor a
+NATURAL JOIN rating r
 WHERE r.rev_stars IS NOT NULL
-GROUP BY mc.act_id;
+GROUP BY a.act_id, a.act_fname, a.act_lname;
 
 #3.
 SELECT d.dir_id, a.act_id, COUNT(m.mov_id)
@@ -30,14 +28,14 @@ ORDER BY COUNT(m.mov_id) LIMIT 5;
 
 #4.
 SET num = 0;
-UPDATE Genres
+UPDATE genres
 SET gen_title = (num := num+1)
 ORDER BY gen_title ASC;
 
-#5.	UPDATE Actor
+#5.	UPDATE actor
 SET act_gender = ‘F’
 WHERE LOWER(act_fname) LIKE LOWER('Em%') OR 
 LOWER(act_fname) LIKE LOWER('Char%’) OR
 LOWER(act_lname) LIKE LOWER('%dy') OR
 LOWER(act_lname) LIKE LOWER('%sy') OR
-LOWER(act_lname) LIKE LOWER('%lia') ;
+LOWER(act_lname) LIKE LOWER('%lia');
